@@ -346,7 +346,7 @@ class Instance(BaseInstance):
                 node=self,
                 context=context,
             )
-        return next(method.infer_call_result(self, new_context), None)
+        return list(method.infer_call_result(self, new_context))
 
 
 class UnboundMethod(Proxy):

@@ -404,12 +404,15 @@ def infer_subscript(self, context=None):
             ) as exc:
                 raise InferenceError(node=self, context=context) from exc
 
+            if not isinstance(assigned, list):
+                assigned = [assigned]
             # Prevent inferring if the inferred subscript
             # is the same as the original subscripted object.
-            if self is assigned or assigned is util.Uninferable:
+            if self in assigned or util.Uninferable in assigned:
                 yield util.Uninferable
                 return None
-            yield from assigned.infer(context)
+            for elm in assigned:
+                yield from elm.infer(context)
             found_one = True
 
     if found_one:
