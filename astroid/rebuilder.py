@@ -250,11 +250,6 @@ class TreeRebuilder:
     def visit(self, node: "ast.ExceptHandler", parent: NodeNG) -> nodes.ExceptHandler:
         ...
 
-    # Not used in Python 3.9+
-    @overload
-    def visit(self, node: "ast.ExtSlice", parent: nodes.Subscript) -> nodes.Tuple:
-        ...
-
     @overload
     def visit(self, node: "ast.For", parent: NodeNG) -> nodes.For:
         ...
@@ -303,10 +298,15 @@ class TreeRebuilder:
     def visit(self, node: "ast.NamedExpr", parent: NodeNG) -> nodes.NamedExpr:
         ...
 
-    # Not used in Python 3.9+
-    @overload
-    def visit(self, node: "ast.Index", parent: nodes.Subscript) -> NodeNG:
-        ...
+    if sys.version_info < (3, 9):
+        # Not used in Python 3.9+
+        @overload
+        def visit(self, node: "ast.ExtSlice", parent: nodes.Subscript) -> nodes.Tuple:
+            ...
+
+        @overload
+        def visit(self, node: "ast.Index", parent: nodes.Subscript) -> NodeNG:
+            ...
 
     @overload
     def visit(self, node: "ast.keyword", parent: NodeNG) -> nodes.Keyword:
@@ -893,15 +893,6 @@ class TreeRebuilder:
         )
         return newnode
 
-    # Not used in Python 3.9+.
-    def visit_extslice(
-        self, node: "ast.ExtSlice", parent: nodes.Subscript
-    ) -> nodes.Tuple:
-        """visit an ExtSlice node by returning a fresh instance of Tuple"""
-        newnode = nodes.Tuple(ctx=Context.Load, parent=parent)
-        newnode.postinit([self.visit(dim, newnode) for dim in node.dims])  # type: ignore
-        return newnode
-
     @overload
     def _visit_for(
         self, cls: Type[nodes.For], node: "ast.For", parent: NodeNG
@@ -1115,10 +1106,19 @@ class TreeRebuilder:
         )
         return newnode
 
-    # Not used in Python 3.9+.
-    def visit_index(self, node: "ast.Index", parent: nodes.Subscript) -> NodeNG:
-        """visit a Index node by returning a fresh instance of NodeNG"""
-        return self.visit(node.value, parent)  # type: ignore
+    if sys.version_info < (3, 9):
+        # Not used in Python 3.9+.
+        def visit_extslice(
+            self, node: "ast.ExtSlice", parent: nodes.Subscript
+        ) -> nodes.Tuple:
+            """visit an ExtSlice node by returning a fresh instance of Tuple"""
+            newnode = nodes.Tuple(ctx=Context.Load, parent=parent)
+            newnode.postinit([self.visit(dim, newnode) for dim in node.dims])
+            return newnode
+
+        def visit_index(self, node: "ast.Index", parent: nodes.Subscript) -> NodeNG:
+            """visit a Index node by returning a fresh instance of NodeNG"""
+            return self.visit(node.value, parent)
 
     def visit_keyword(self, node: "ast.keyword", parent: NodeNG) -> nodes.Keyword:
         """visit a Keyword node by returning a fresh instance of it"""
