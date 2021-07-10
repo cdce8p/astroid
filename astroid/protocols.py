@@ -31,7 +31,7 @@ import collections
 import itertools
 import operator as operator_mod
 import sys
-from typing import Generator, Optional
+from typing import Dict, Generator, Optional
 
 from astroid import arguments, bases
 from astroid import context as contextmod
@@ -783,6 +783,48 @@ def starred_assigned_stmts(self, node=None, context=None, assign_path=None):
 
 
 nodes.Starred.assigned_stmts = starred_assigned_stmts
+
+
+def would_pattern_be_matched(
+    node: nodes.NodeNG,
+    subject: nodes.NodeNG,
+    node_mapping: Optional[Dict[nodes.NodeNG, nodes.NodeNG]] = None,
+    ctx: Optional[contextmod.InferenceContext] = None,
+) -> bool:
+    if isinstance(node, nodes.MatchAs):
+        return True
+    if isinstance(node, nodes.MatchOr):
+        return any(
+            would_pattern_be_matched(pattern, subject, node_mapping, ctx)
+            for pattern in node.patterns
+        )
+    if isinstance(node, nodes.MatchValue):
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, nodes.Const) and isinstance(node.value, nodes.Const):
+            return inferred.value == node.value.value
+        return False
+    if isinstance(node, nodes.MatchSingleton):
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, nodes.Const):
+            return inferred.value == node.value
+        return False
+    if isinstance(node, nodes.MatchMapping):
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, nodes.Dict):
+            for key, pattern in zip(node.keys, node.patterns):
+                try:
+                    value = inferred.getitem(key)
+                    if (
+                        would_pattern_be_matched(pattern, value, node_mapping, ctx)
+                        is False
+                    ):
+                        return False
+                except AstroidIndexError:
+                    break
+            else:
+                return True
+        return False
+    return False
 
 
 @decorators.yes_if_nothing_inferred

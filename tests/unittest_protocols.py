@@ -23,6 +23,7 @@ from astroid import extract_node, nodes, util
 from astroid.const import PY38_PLUS, PY310_PLUS
 from astroid.exceptions import InferenceError
 from astroid.node_classes import AssignName, Const, Name, Starred
+from astroid.protocols import would_pattern_be_matched
 
 
 @contextlib.contextmanager
@@ -340,6 +341,94 @@ class TestPatternMatching:
         assert match_as.name
         assigned_match_as = next(match_as.name.assigned_stmts())
         assert assigned_match_as == subject
+
+
+@pytest.mark.skipif(not PY310_PLUS, reason="Match requires python 3.10")
+class TestPatternMatching:
+    @staticmethod
+    def test_would_pattern_match_as():
+        code = extract_node(
+            """
+        var = 42
+        match var:  #@
+            case capture:  #@
+                pass
+            case _:  #@
+                pass
+        """
+        )
+        subject = code[0].subject
+        assert would_pattern_be_matched(code[1], subject) is True
+        assert would_pattern_be_matched(code[2], subject) is True
+
+    @staticmethod
+    def test_would_pattern_match_value():
+        code = extract_node(
+            """
+        var = 42
+        match var:  #@
+            case "Hello World":  #@
+                pass
+            case 42:  #@
+                pass
+        """
+        )
+        subject = code[0].subject
+        assert would_pattern_be_matched(code[1], subject) is False
+        assert would_pattern_be_matched(code[2], subject) is True
+
+    @staticmethod
+    def test_would_pattern_match_or():
+        code = extract_node(
+            """
+        var = 42
+        match var:  #@
+            case 1 | 2:  #@
+                pass
+            case "Hello World" | 42:  #@
+                pass
+        """
+        )
+        subject = code[0].subject
+        assert would_pattern_be_matched(code[1], subject) is False
+        assert would_pattern_be_matched(code[2], subject) is True
+
+    @staticmethod
+    def test_would_pattern_match_singleton():
+        code = extract_node(
+            """
+        var = None
+        match var:  #@
+            case None:  #@
+                pass
+
+        var2 = True
+        match var2:  #@
+            case True:  #@
+                pass
+            case False:  #@
+                pass
+        """
+        )
+        subject1 = code[0].subject
+        assert would_pattern_be_matched(code[1], subject1) is True
+
+        subject2 = code[2].subject
+        assert would_pattern_be_matched(code[3], subject2) is True
+        assert would_pattern_be_matched(code[4], subject2) is False
+
+    @staticmethod
+    def test_would_pattern_match_mapping():
+        code = extract_node(
+            """
+        var = {2: "Hello World", 3: "Hello"}
+        match var:  #@
+            case {2: _, 3: "Hello" | 2}:  #@
+                pass
+        """
+        )
+        subject = code[0].subject
+        assert would_pattern_be_matched(code[1], subject) is True
 
 
 if __name__ == "__main__":
