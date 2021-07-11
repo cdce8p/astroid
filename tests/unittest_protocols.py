@@ -342,9 +342,6 @@ class TestPatternMatching:
         assigned_match_as = next(match_as.name.assigned_stmts())
         assert assigned_match_as == subject
 
-
-@pytest.mark.skipif(not PY310_PLUS, reason="Match requires python 3.10")
-class TestPatternMatching:
     @staticmethod
     def test_would_pattern_match_as():
         code = extract_node(
@@ -358,8 +355,8 @@ class TestPatternMatching:
         """
         )
         subject = code[0].subject
-        assert would_pattern_be_matched(code[1], subject) is True
-        assert would_pattern_be_matched(code[2], subject) is True
+        assert would_pattern_be_matched(code[1].pattern, subject) is True
+        assert would_pattern_be_matched(code[2].pattern, subject) is True
 
     @staticmethod
     def test_would_pattern_match_value():
@@ -374,8 +371,8 @@ class TestPatternMatching:
         """
         )
         subject = code[0].subject
-        assert would_pattern_be_matched(code[1], subject) is False
-        assert would_pattern_be_matched(code[2], subject) is True
+        assert would_pattern_be_matched(code[1].pattern, subject) is False
+        assert would_pattern_be_matched(code[2].pattern, subject) is True
 
     @staticmethod
     def test_would_pattern_match_or():
@@ -390,8 +387,8 @@ class TestPatternMatching:
         """
         )
         subject = code[0].subject
-        assert would_pattern_be_matched(code[1], subject) is False
-        assert would_pattern_be_matched(code[2], subject) is True
+        assert would_pattern_be_matched(code[1].pattern, subject) is False
+        assert would_pattern_be_matched(code[2].pattern, subject) is True
 
     @staticmethod
     def test_would_pattern_match_singleton():
@@ -411,11 +408,11 @@ class TestPatternMatching:
         """
         )
         subject1 = code[0].subject
-        assert would_pattern_be_matched(code[1], subject1) is True
+        assert would_pattern_be_matched(code[1].pattern, subject1) is True
 
         subject2 = code[2].subject
-        assert would_pattern_be_matched(code[3], subject2) is True
-        assert would_pattern_be_matched(code[4], subject2) is False
+        assert would_pattern_be_matched(code[3].pattern, subject2) is True
+        assert would_pattern_be_matched(code[4].pattern, subject2) is False
 
     @staticmethod
     def test_would_pattern_match_mapping():
@@ -428,7 +425,26 @@ class TestPatternMatching:
         """
         )
         subject = code[0].subject
-        assert would_pattern_be_matched(code[1], subject) is True
+        assert would_pattern_be_matched(code[1].pattern, subject) is True
+
+    @staticmethod
+    def test_would_pattern_match_class():
+        code = extract_node(
+            """
+        class A:
+            __match_args__ = ('a', 'b')
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+        var = A(1, 2)
+        match var:  #@
+            case A(1, 2):  #@
+                pass
+        """
+        )
+
+        subject = code[0].subject
+        assert would_pattern_be_matched(code[1].pattern, subject) is True
 
 
 if __name__ == "__main__":

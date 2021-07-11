@@ -4919,8 +4919,16 @@ class Match(Statement):
         self.cases = cases
 
 
-class Pattern(NodeNG):
+class Pattern(NodeNG, metaclass=abc.ABCMeta):
     """Base class for all Pattern nodes."""
+
+    # @abc.abstractmethod
+    # def match_subject(
+    #     self,
+    #     subject: NodeNG,
+    #     ctx: Optional[contextmod.InferenceContext] = None,
+    # ) -> bool:
+    #     pass
 
 
 class MatchCase(mixins.MultiLineBlockMixin, NodeNG):
@@ -4982,6 +4990,16 @@ class MatchValue(Pattern):
     def postinit(self, *, value: NodeNG) -> None:
         self.value = value
 
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, Const) and isinstance(self.value, Const):
+            return inferred.value == self.value
+        return False
+
 
 class MatchSingleton(Pattern):
     """Class representing a :class:`ast.MatchSingleton` node.
@@ -5016,6 +5034,16 @@ class MatchSingleton(Pattern):
         self.value: Literal[True, False, None] = value
         super().__init__(lineno=lineno, col_offset=col_offset, parent=parent)
 
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, Const):
+            return inferred.value == self.value
+        return False
+
 
 class MatchSequence(Pattern):
     """Class representing a :class:`ast.MatchSequence` node.
@@ -5046,6 +5074,14 @@ class MatchSequence(Pattern):
 
     def postinit(self, *, patterns: typing.List[Pattern]) -> None:
         self.patterns = patterns
+
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        # TODO
+        pass
 
 
 class MatchMapping(mixins.AssignTypeMixin, Pattern):
@@ -5094,6 +5130,26 @@ class MatchMapping(mixins.AssignTypeMixin, Pattern):
         Generator[NodeNG, None, None],
     ]
 
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        inferred = next(subject.infer(context=ctx))
+        if isinstance(inferred, Dict):
+            for key, pattern in zip(self.keys, self.patterns):
+                try:
+                    value = inferred.getitem(key)
+                    if pattern.match_subject(value, ctx) is False:
+                        return False
+                except AstroidIndexError:
+                    break
+            else:
+                # No break, all keys in inferred dict
+                return True
+
+        return False
+
 
 class MatchClass(Pattern):
     """Class representing a :class:`ast.MatchClass` node.
@@ -5138,6 +5194,14 @@ class MatchClass(Pattern):
         self.patterns = patterns
         self.kwd_attrs = kwd_attrs
         self.kwd_patterns = kwd_patterns
+
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        # TODO
+        pass
 
 
 class MatchStar(mixins.AssignTypeMixin, Pattern):
@@ -5232,6 +5296,15 @@ class MatchAs(mixins.AssignTypeMixin, Pattern):
         Generator[NodeNG, None, None],
     ]
 
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        if self.pattern is None:
+            return True
+        return self.pattern.match_subject(subject, ctx)
+
 
 class MatchOr(Pattern):
     """Class representing a :class:`ast.MatchOr` node.
@@ -5258,6 +5331,13 @@ class MatchOr(Pattern):
 
     def postinit(self, *, patterns: typing.List[Pattern]) -> None:
         self.patterns = patterns
+
+    def match_subject(
+        self,
+        subject: NodeNG,
+        ctx: Optional[contextmod.InferenceContext] = None,
+    ) -> bool:
+        return any(pattern.match_subject(subject, ctx) for pattern in self.patterns)
 
 
 # constants ##############################################################

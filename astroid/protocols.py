@@ -791,6 +791,7 @@ def would_pattern_be_matched(
     node_mapping: Optional[Dict[nodes.NodeNG, nodes.NodeNG]] = None,
     ctx: Optional[contextmod.InferenceContext] = None,
 ) -> bool:
+    # pylint: disable=too-many-return-statements
     if isinstance(node, nodes.MatchAs):
         return True
     if isinstance(node, nodes.MatchOr):
@@ -824,6 +825,38 @@ def would_pattern_be_matched(
             else:
                 return True
         return False
+    if isinstance(node, nodes.MatchClass):
+        inferred = next(subject.infer(context=ctx))
+        node_cls: bases.Instance = next(node.cls.infer(context=ctx))
+        try:
+            node_match_args = node_cls.getattr("__match_args__", context=ctx)
+        except AttributeInferenceError:
+            return False
+        if (
+            len(node_match_args) != 1
+            or not isinstance(node_match_args[0], nodes.AssignName)
+            or not isinstance(node_match_args[0].parent, nodes.Assign)
+            or not isinstance(
+                node_match_args[0].parent.value, node_classes._BaseContainer
+            )
+        ):
+            return False
+        match_args = []
+        index = 0
+        for item in node_match_args[0].parent.value.elts:
+            if not (isinstance(item, nodes.Const) and item.pytype() == "builtins.str"):
+                return False
+            match_args.append(item.value)
+        for pattern in node.patterns:
+            try:
+                attributes = node_cls.getattr(match_args[index], context=ctx)  # TODO
+                if len(attributes) != 1:
+                    return False
+                if would_pattern_be_matched(pattern, attributes[0], ctx=ctx) is False:
+                    return False
+                index += 1
+            except (IndexError, AttributeInferenceError):
+                return False
     return False
 
 
