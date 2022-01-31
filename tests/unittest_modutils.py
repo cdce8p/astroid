@@ -426,6 +426,7 @@ def test_sysconfig() -> None:
     from distutils.sysconfig import get_python_lib
     from pprint import pprint
     import typing
+    import datetime
 
     print(get_python_lib())
     print(get_python_lib(True))
@@ -456,8 +457,7 @@ def test_sysconfig() -> None:
 
     print("---")
     print(os.__file__)
-    print(typing.__file__)
-    print(sys.__file__)
+    print(datetime.__file__)
     print(os.listdir(Path(sysconfig.get_path("stdlib")).parent))
     # print(os.listdir(Path(sysconfig.get_path("stdlib"))))
     # print(os.listdir(Path(sysconfig.get_path("platstdlib")).parent))
