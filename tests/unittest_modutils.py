@@ -453,6 +453,12 @@ def test_sysconfig() -> None:
     print("---")
     print(modutils.STD_LIB_DIRS)
 
+    print("---")
+    os.listdir(Path(sysconfig.get_path("stdlib")).parent)
+    os.listdir(sysconfig.get_path("stdlib"))
+    os.listdir(Path(sysconfig.get_path("platstdlib")).parent)
+    os.listdir(sysconfig.get_path("platstdlib"))
+
     assert False
 
 
