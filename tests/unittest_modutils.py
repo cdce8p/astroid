@@ -421,5 +421,30 @@ class ExtensionPackageWhitelistTest(unittest.TestCase):
         )
 
 
+def test_sysconfig() -> None:
+    import sysconfig
+    from distutils.sysconfig import get_python_lib
+    from pprint import pprint
+
+    print(get_python_lib())
+    print(get_python_lib(True))
+    print("----")
+
+    print(sys.prefix)
+    print(sys.exec_prefix)
+    print("----")
+
+    print(get_python_lib(standard_lib=True, prefix=sys.prefix))
+    print(get_python_lib(standard_lib=True, prefix=sys.exec_prefix))
+    print(get_python_lib(standard_lib=True))
+    print("----")
+
+    # replace by 'platstdlib' + 'stdlib'?
+
+    pprint(sysconfig.get_paths())
+
+    assert False
+
+
 if __name__ == "__main__":
     unittest.main()
