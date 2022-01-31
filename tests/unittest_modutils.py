@@ -442,6 +442,16 @@ def test_sysconfig() -> None:
     # replace by 'platstdlib' + 'stdlib'?
 
     pprint(sysconfig.get_paths())
+    print("----")
+    pprint(sysconfig.get_paths(expand=False))
+
+    print("----")
+    print(sys.base_prefix)
+    print(get_python_lib(standard_lib=True, prefix=sys.base_prefix))
+    pprint(sysconfig.get_paths(vars={"implementation_lower": "python/3"}))
+
+    print("---")
+    print(modutils.STD_LIB_DIRS)
 
     assert False
 
