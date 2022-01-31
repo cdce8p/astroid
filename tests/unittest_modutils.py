@@ -425,6 +425,7 @@ def test_sysconfig() -> None:
     import sysconfig
     from distutils.sysconfig import get_python_lib
     from pprint import pprint
+    import typing
 
     print(get_python_lib())
     print(get_python_lib(True))
@@ -454,10 +455,13 @@ def test_sysconfig() -> None:
     print(modutils.STD_LIB_DIRS)
 
     print("---")
+    print(os.__file__)
+    print(typing.__file__)
+    print(sys.__file__)
     print(os.listdir(Path(sysconfig.get_path("stdlib")).parent))
-    print(os.listdir(sysconfig.get_path("stdlib")))
-    print(os.listdir(Path(sysconfig.get_path("platstdlib")).parent))
-    print(os.listdir(sysconfig.get_path("platstdlib")))
+    # print(os.listdir(Path(sysconfig.get_path("stdlib"))))
+    # print(os.listdir(Path(sysconfig.get_path("platstdlib")).parent))
+    # print(os.listdir(sysconfig.get_path("platstdlib")))
 
     assert False
 
