@@ -425,8 +425,6 @@ def test_sysconfig() -> None:
     import sysconfig
     from distutils.sysconfig import get_python_lib
     from pprint import pprint
-    import typing
-    import datetime
 
     print(get_python_lib())
     print(get_python_lib(True))
@@ -450,18 +448,9 @@ def test_sysconfig() -> None:
     print("----")
     print(sys.base_prefix)
     print(get_python_lib(standard_lib=True, prefix=sys.base_prefix))
-    pprint(sysconfig.get_paths(vars={"implementation_lower": "python/3"}))
 
     print("---")
     print(modutils.STD_LIB_DIRS)
-
-    print("---")
-    print(os.__file__)
-    print(datetime.__file__)
-    print(os.listdir(Path(sysconfig.get_path("stdlib")).parent))
-    # print(os.listdir(Path(sysconfig.get_path("stdlib"))))
-    # print(os.listdir(Path(sysconfig.get_path("platstdlib")).parent))
-    # print(os.listdir(sysconfig.get_path("platstdlib")))
 
     assert False
 
