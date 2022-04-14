@@ -22,7 +22,7 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
@@ -81,7 +81,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -128,7 +128,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
@@ -172,7 +172,7 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -213,7 +213,7 @@ jobs:
       COVERAGERC_FILE: .coveragerc
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -258,7 +258,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
@@ -306,7 +306,7 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -341,7 +341,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
@@ -384,7 +384,7 @@ jobs:
         python-version: ["pypy-3.6", "pypy-3.7", "pypy-3.8"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v3.1.2
