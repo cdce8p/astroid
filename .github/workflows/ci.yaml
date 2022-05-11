@@ -133,13 +133,11 @@ jobs:
           path: .coverage
 
   tests-linux-dev:
-    name: tests / run / ${{ matrix.python-version }} / ${{ matrix.os }}
-    # runs-on: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+    name: tests / run / ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       matrix:
-        os: ["ubuntu-latest", "windows-latest"]
         python-version: ["3.11-dev"]
     steps:
       - name: Check out code from GitHub
@@ -183,6 +181,57 @@ jobs:
         with:
           name: coverage-${{ matrix.python-version }}
           path: .coverage
+
+  tests-windows-dev:
+    name: tests / run / ${{ matrix.python-version }} / Windows
+    runs-on: windows-latest
+    timeout-minutes: 20
+    needs: tests-linux
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.11-dev"]
+    steps:
+      - name: Set temp directory
+        run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
+        # Workaround to set correct temp directory on Windows
+        # https://github.com/actions/virtual-environments/issues/712
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.2
+      - name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v3.1.2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+            hashFiles('setup.cfg', 'requirements_test_min.txt',
+          'requirements_test_brain.txt') }}"
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.0.2
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv\\Scripts\\activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test_min.txt -r requirements_test_brain.txt
+          pip install -e .
+      - name: Run pytest
+        if: false
+        run: |
+          . venv\\Scripts\\activate
+          pytest tests/unittest_object_model.py
 
   coverage:
     name: tests / process / coverage
