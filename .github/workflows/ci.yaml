@@ -133,7 +133,7 @@ jobs:
           path: .coverage
 
   tests-linux-dev:
-    name: tests / run / ${{ matrix.python-version }} / Linux
+    name: tests / run / ${{ matrix.python-version }} / ${{ matrix.os }}
     # runs-on: ubuntu-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
@@ -174,7 +174,6 @@ jobs:
           pip install -U -r requirements_test.txt -r requirements_test_brain.txt
           pip install -e .
       - name: Run pytest
-        if: false
         run: |
           . venv/bin/activate
           pytest tests/unittest_object_model.py
