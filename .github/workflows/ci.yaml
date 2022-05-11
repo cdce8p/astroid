@@ -16,6 +16,7 @@ jobs:
   base-checks:
     name: Checks
     runs-on: ubuntu-latest
+    if: false
     timeout-minutes: 20
     steps:
       - name: Check out code from GitHub
@@ -77,6 +78,7 @@ jobs:
   tests-linux:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    if: false
     timeout-minutes: 20
     strategy:
       fail-fast: true
@@ -132,10 +134,12 @@ jobs:
 
   tests-linux-dev:
     name: tests / run / ${{ matrix.python-version }} / Linux
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       matrix:
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: ["3.11-dev"]
     steps:
       - name: Check out code from GitHub
@@ -170,10 +174,12 @@ jobs:
           pip install -U -r requirements_test.txt -r requirements_test_brain.txt
           pip install -e .
       - name: Run pytest
+        if: false
         run: |
           . venv/bin/activate
-          pytest --cov --cov-report= tests/
+          pytest tests/unittest_object_model.py
       - name: Upload coverage artifact
+        if: false
         uses: actions/upload-artifact@v3.0.0
         with:
           name: coverage-${{ matrix.python-version }}
@@ -228,6 +234,7 @@ jobs:
   tests-windows:
     name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    if: false
     timeout-minutes: 20
     needs: tests-linux
     strategy:
@@ -278,6 +285,7 @@ jobs:
   tests-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    if: false
     timeout-minutes: 20
     strategy:
       fail-fast: false
