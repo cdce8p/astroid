@@ -94,7 +94,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Qt
-        if: ${{ matrix.python-version == '3.10' }}
+        if: false
         run: |
           sudo apt-get install build-essential libgl1-mesa-dev
       - name: Generate partial Python venv restore key
@@ -126,6 +126,7 @@ jobs:
           . venv/bin/activate
           pytest --cov --cov-report= tests/
       - name: Upload coverage artifact
+        if: false
         uses: actions/upload-artifact@v3.0.0
         with:
           name: coverage-${{ matrix.python-version }}
@@ -136,6 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: "tests-linux"
+    if: false
     strategy:
       matrix:
         python-version: [3.8]
