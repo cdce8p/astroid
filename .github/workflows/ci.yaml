@@ -172,6 +172,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          coverage debug sys
           pytest --cov --cov-report= tests/
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.0.0
