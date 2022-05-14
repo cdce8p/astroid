@@ -124,7 +124,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --cov --cov-report= tests/
+          pytest --durations=30 tests/
       - name: Upload coverage artifact
         if: false
         uses: actions/upload-artifact@v3.0.0
@@ -226,7 +226,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest tests/
+          pytest  --durations=30 tests/
 
   tests-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
