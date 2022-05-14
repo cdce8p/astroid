@@ -75,12 +75,13 @@ jobs:
           pre-commit run pylint --all-files
 
   tests-linux:
-    name: tests / run / ${{ matrix.python-version }} / Linux
-    runs-on: ubuntu-latest
+    name: tests / run / ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       fail-fast: true
       matrix:
+        os: ["ubuntu-latest", "macos-latest"]
         python-version: [3.7, 3.8, 3.9, "3.10", "3.11.0-beta.1"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
