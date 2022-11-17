@@ -926,7 +926,7 @@ def _is_str_format_call(node: nodes.Call) -> bool:
 
 def _infer_str_format_call(
     node: nodes.Call, context: InferenceContext | None = None
-) -> Iterator[nodes.Const | type[util.Uninferable]]:
+) -> Iterator[nodes.Const | util.UninferableType]:
     """Return a Const node based on the template and passed arguments."""
     call = arguments.CallSite.from_call(node, context=context)
     if isinstance(node.func.expr, nodes.Name):

@@ -630,7 +630,7 @@ def _is_not_implemented(const):
 
 def _infer_old_style_string_formatting(
     instance: nodes.Const, other: nodes.NodeNG, context: InferenceContext
-) -> tuple[type[util.Uninferable] | nodes.Const]:
+) -> tuple[util.UninferableType | nodes.Const]:
     """Infer the result of '"string" % ...'.
 
     TODO: Instead of returning Uninferable we should rely
@@ -970,7 +970,7 @@ def _to_literal(node: nodes.NodeNG) -> Any:
 
 def _do_compare(
     left_iter: Iterable[nodes.NodeNG], op: str, right_iter: Iterable[nodes.NodeNG]
-) -> bool | type[util.Uninferable]:
+) -> bool | util.UninferableType:
     """
     If all possible combinations are either True or False, return that:
     >>> _do_compare([1, 2], '<=', [3, 4])
@@ -1014,9 +1014,9 @@ def _do_compare(
 
 def _infer_compare(
     self: nodes.Compare, context: InferenceContext | None = None, **kwargs: Any
-) -> Generator[nodes.Const | type[util.Uninferable], None, None]:
+) -> Generator[nodes.Const | util.UninferableType, None, None]:
     """Chained comparison inference logic."""
-    retval: bool | type[util.Uninferable] = True
+    retval: bool | util.UninferableType = True
 
     ops = self.ops
     left_node = self.left

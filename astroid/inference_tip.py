@@ -17,7 +17,7 @@ from astroid.nodes import NodeNG
 from astroid.typing import InferFn
 
 InferOptions = typing.Union[
-    NodeNG, bases.Instance, bases.UnboundMethod, typing.Type[util.Uninferable]
+    NodeNG, bases.Instance, bases.UnboundMethod, typing.Type[util.UninferableType]
 ]
 
 _cache: dict[tuple[InferFn, NodeNG], list[InferOptions] | None] = {}

@@ -28,7 +28,7 @@ from astroid.exceptions import (
     NameInferenceError,
 )
 from astroid.typing import InferenceErrorInfo, InferenceResult
-from astroid.util import Uninferable, lazy_descriptor, lazy_import
+from astroid.util import Uninferable, UninferableType, lazy_descriptor, lazy_import
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -140,7 +140,7 @@ class Proxy:
 
 
 def _infer_stmts(
-    stmts: Sequence[nodes.NodeNG | type[Uninferable] | Instance],
+    stmts: Sequence[nodes.NodeNG | UninferableType | Instance],
     context: InferenceContext | None,
     frame: nodes.NodeNG | Instance | None = None,
 ) -> collections.abc.Generator[InferenceResult, None, None]:
@@ -437,7 +437,7 @@ class UnboundMethod(Proxy):
         caller: nodes.Call,
         context: InferenceContext,
     ) -> collections.abc.Generator[
-        nodes.Const | Instance | type[Uninferable], None, None
+        nodes.Const | Instance | UninferableType, None, None
     ]:
         if not caller.args:
             return

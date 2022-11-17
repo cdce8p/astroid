@@ -182,7 +182,7 @@ def tl_infer_binary_op(
     other: nodes.NodeNG,
     context: InferenceContext,
     method: nodes.FunctionDef,
-) -> Generator[nodes.NodeNG | type[util.Uninferable], None, None]:
+) -> Generator[nodes.NodeNG | util.UninferableType, None, None]:
     """Infer a binary operation on a tuple or list.
 
     The instance on which the binary operation is performed is a tuple

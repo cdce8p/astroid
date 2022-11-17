@@ -4950,13 +4950,11 @@ class EvaluatedObject(NodeNG):
     _astroid_fields = ("original",)
     _other_fields = ("value",)
 
-    def __init__(
-        self, original: NodeNG, value: NodeNG | type[util.Uninferable]
-    ) -> None:
+    def __init__(self, original: NodeNG, value: NodeNG | util.UninferableType) -> None:
         self.original: NodeNG = original
         """The original node that has already been evaluated"""
 
-        self.value: NodeNG | type[util.Uninferable] = value
+        self.value: NodeNG | util.UninferableType = value
         """The inferred value"""
 
         super().__init__(
@@ -4967,7 +4965,7 @@ class EvaluatedObject(NodeNG):
 
     def _infer(
         self, context: InferenceContext | None = None, **kwargs: Any
-    ) -> Generator[NodeNG | type[util.Uninferable], None, None]:
+    ) -> Generator[NodeNG | util.UninferableType, None, None]:
         yield self.value
 
 
