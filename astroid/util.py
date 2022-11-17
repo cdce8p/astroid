@@ -2,10 +2,16 @@
 # For details: https://github.com/PyCQA/astroid/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/astroid/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import importlib
 import warnings
+from typing import TYPE_CHECKING, Any
 
 import lazy_object_proxy
+
+if TYPE_CHECKING:
+    from astroid.nodes.as_string import AsStringVisitor
 
 
 def lazy_descriptor(obj):
@@ -22,34 +28,42 @@ def lazy_import(module_name):
     )
 
 
-@object.__new__
-class Uninferable:
+class UninferableType:
     """Special inference object, which is returned when inference fails."""
 
-    def __repr__(self):
-        return "Uninferable"
+    _instance = None
 
-    __str__ = __repr__
+    def __new__(cls):
+        """Create a singleton instance when instantiated."""
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+        return cls._instance
 
-    def __getattribute__(self, name):
-        if name == "next":
-            raise AttributeError("next method should not be called")
+    def __getattribute__(self, name: str) -> Any:
+        """Passthrough any call to dunder and defined methods. Else return Self."""
         if name.startswith("__") and name.endswith("__"):
             return object.__getattribute__(self, name)
-        if name == "accept":
+
+        try:
             return object.__getattribute__(self, name)
+        except AttributeError:
+            return self
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        """Return Self when called explicitly."""
         return self
 
-    def __call__(self, *args, **kwargs):
-        return self
+    def __repr__(self) -> str:
+        return "Uninferable"
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
-    __nonzero__ = __bool__
-
-    def accept(self, visitor):
+    def accept(self, visitor: AsStringVisitor) -> str:
         return visitor.visit_uninferable(self)
+
+
+Uninferable = UninferableType()
 
 
 class BadOperationMessage:
