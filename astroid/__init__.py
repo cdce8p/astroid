@@ -180,7 +180,7 @@ from astroid.nodes import (  # pylint: disable=redefined-builtin (Ellipsis)
 
 # isort: on
 
-from astroid.util import Uninferable
+from astroid.util import Uninferable, UninferableType
 
 # Performance hack for tokenize. See https://bugs.python.org/issue43014
 # Adapted from https://github.com/PyCQA/pycodestyle/pull/993
