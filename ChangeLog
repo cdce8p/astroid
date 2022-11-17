@@ -16,6 +16,11 @@ Release date: TBA
 
   Refs PyCQA/pylint#2567
 
+* Change type of ``Uninferable`` to be an instance of ``UninferableType``.
+  Required to enable for better type annotations.
+
+  Closes #1680
+
 
 What's New in astroid 2.12.13?
 ==============================
