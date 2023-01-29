@@ -121,7 +121,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --cov
+          pytest --cov tests/unittest_inference.py -v -k test_recursion_on_inference_tip
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -175,7 +175,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest --cov
+          pytest --cov tests/unittest_inference.py -v -k test_recursion_on_inference_tip
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -224,7 +224,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --cov
+          pytest --cov tests/unittest_inference.py -v -k test_recursion_on_inference_tip
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.2
         with:

@@ -6856,6 +6856,7 @@ def test_recursion_on_inference_tip() -> None:
     """
     module = parse(code)
     assert module
+    assert False
 
 
 def test_function_def_cached_generator() -> None:

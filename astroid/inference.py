@@ -255,6 +255,9 @@ nodes.Name._infer = decorators.raise_if_nothing_inferred(
 nodes.AssignName.infer_lhs = infer_name  # won't work with a path wrapper
 
 
+calls = 0
+
+
 @decorators.raise_if_nothing_inferred
 @decorators.path_wrapper
 def infer_call(
@@ -278,6 +281,10 @@ def infer_call(
                     callee=callee,
                     parent_call_context=callcontext.callcontext,
                 )
+                global calls
+                calls += 1
+                print(f"{calls}: {self.func.name}")
+
                 yield from callee.infer_call_result(caller=self, context=callcontext)
         except InferenceError:
             continue
