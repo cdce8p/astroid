@@ -178,6 +178,15 @@ def function_to_method(n, klass):
     return n
 
 
+def _infer_last(
+    arg: SuccessfulInferenceResult, context: InferenceContext
+) -> InferenceResult:
+    res = util.Uninferable
+    for b in arg.infer(context=context.clone()):
+        res = b
+    return res
+
+
 class Module(LocalsDictNodeNG):
     """Class representing an :class:`ast.Module` node.
 
@@ -2893,13 +2902,8 @@ class ClassDef(  # pylint: disable=too-many-instance-attributes
 
         for stmt in self.bases:
             try:
-                # Find the first non-None inferred base value
-                baseobj = next(
-                    b
-                    for b in stmt.infer(context=context.clone())
-                    if not (isinstance(b, Const) and b.value is None)
-                )
-            except (InferenceError, StopIteration):
+                baseobj = _infer_last(stmt, context)
+            except InferenceError:
                 continue
             if isinstance(baseobj, bases.Instance):
                 baseobj = baseobj._proxied
